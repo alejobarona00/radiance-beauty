@@ -5,7 +5,6 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
-  basePath: "/radiance-beauty", // Esto le dice dónde está tu carpeta
 };
 
 export default nextConfig;
