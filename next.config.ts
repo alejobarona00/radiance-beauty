@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: "export",
+  // Eliminamos la línea: output: "export",
   images: {
     unoptimized: true,
   },
