@@ -154,7 +154,7 @@ export const CtaSection = () => {
           >
             {/* Botón gold con shimmer + link real a Mercado Pago */}
             <motion.a
-              href="https://mpago.li/1ZF4qDN"
+              href="https://tally.so/r/5BMAN6"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Comprar la mascarilla — se abrirá en una nueva pestaña"

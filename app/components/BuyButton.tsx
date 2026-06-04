@@ -1,7 +1,7 @@
 "use client";
 
 // Reemplaza este valor con tu link real de Mercado Pago
-const PAYMENT_URL = "https://mpago.li/1ZF4qDN";
+const PAYMENT_URL = "https://tally.so/r/5BMAN6";
 
 interface BuyButtonProps {
   label?: string;

@@ -40,7 +40,7 @@ export const StickyNav = () => {
 
         {/* Botón de compra */}
         <a
-          href="https://mpago.li/1ZF4qDN"
+          href="https://tally.so/r/5BMAN6"
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Comprar la mascarilla por $59.900 COP"
