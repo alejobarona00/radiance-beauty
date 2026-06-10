@@ -38,16 +38,14 @@ export const StickyNav = () => {
           Mascarilla Exfoliante Capilar
         </span>
 
-        {/* Botón de compra */}
-        <a
-          href="https://tally.so/r/5BMAN6"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Comprar la mascarilla por $59.900 COP"
+        {/* Scroll a la sección de precios */}
+        <button
+          onClick={() => document.getElementById("precio")?.scrollIntoView({ behavior: "smooth" })}
+          aria-label="Ver precios y comprar"
           className="flex-shrink-0 font-body text-xs font-semibold tracking-[0.12em] uppercase bg-terracota hover:bg-terracota-dark text-ivory px-5 py-2.5 rounded-full transition-all duration-200 hover:shadow-lg hover:shadow-terracota/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terracota focus-visible:ring-offset-1 focus-visible:ring-offset-charcoal"
         >
-          Comprar · $59.900
-        </a>
+          Ver precio →
+        </button>
       </div>
     </div>
   );

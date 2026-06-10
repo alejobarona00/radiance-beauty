@@ -2,7 +2,6 @@
 
 import { motion } from "framer-motion";
 import { ReactNode } from "react";
-import { BuyButton } from "@/app/components/BuyButton";
 
 interface Benefit {
   title: string;
@@ -157,16 +156,7 @@ export const ProductSection = () => {
               )}
             </motion.ul>
 
-            {/* Botón de compra — punto medio de la página */}
-            <motion.div
-              initial={{ opacity: 0, y: 14 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-80px" }}
-              transition={{ duration: 0.5, delay: 0.5, ease: "easeOut" }}
-              className="mt-8"
-            >
-              <BuyButton label="Comprar ahora" variant="terracota" />
-            </motion.div>
+
           </div>
 
           {/* Columna derecha: visual del producto */}

@@ -9,47 +9,49 @@ import { TestimonialsSection } from "@/app/components/TestimonialsSection";
 import { BeforeAfterSection } from "@/app/components/BeforeAfterSection";
 import { FAQSection } from "@/app/components/FAQSection";
 import { CtaSection } from "@/app/components/CtaSection";
+import { PricingSection } from "@/app/components/PricingSection";
 import { Footer } from "@/app/components/Footer";
 
 export default function Home() {
   return (
     <>
-      {/* Barra de compra fija — aparece al hacer scroll */}
       <StickyNav />
 
       <main>
-        {/* 1. HOOK — Captura la atención */}
+        {/* 1. HOOK */}
         <HeroSection />
 
-        {/* 2. DOLOR — Identificación con el problema */}
+        {/* 2. DOLOR */}
         <PainSection />
 
-        {/* 3. REVELACIÓN — El insight que cambia la perspectiva */}
+        {/* 3. REVELACIÓN */}
         <RevealSection />
 
-        {/* 4. SOLUCIÓN — Presentación del producto */}
+        {/* 4. SOLUCIÓN */}
         <ProductSection />
 
-        {/* 5. PRUEBA — Los ingredientes y su propósito */}
+        {/* 5. PRUEBA */}
         <IngredientsSection />
 
-        {/* 6. USO — El ritual de aplicación */}
+        {/* 6. USO */}
         <RitualSection />
 
-        {/* 7. CONFIANZA — Testimonios reales */}
+        {/* 7. CONFIANZA */}
         <TestimonialsSection />
 
-        {/* 8. EVIDENCIA VISUAL — Antes y después */}
+        {/* 8. EVIDENCIA VISUAL */}
         <BeforeAfterSection />
 
-        {/* 9. OBJECIONES — FAQ que cierra dudas */}
+        {/* 9. OBJECIONES */}
         <FAQSection />
 
-        {/* 10. CIERRE — CTA final de compra */}
+        {/* 10. CIERRE — texto + imagen del producto */}
         <CtaSection />
+
+        {/* 11. COMPRA — selector de unidades + modal (único punto de venta) */}
+        <PricingSection />
       </main>
 
-      {/* Footer con Instagram y legales */}
       <Footer />
     </>
   );
