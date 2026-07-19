@@ -1,17 +1,30 @@
 'use client';
 import { useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
+
+const PRICE_BY_UNIDADES: Record<string, number> = {
+  '1': 69900,
+  '2': 109000,
+};
 
 function GraciasContent() {
+  const searchParams = useSearchParams();
+
   useEffect(() => {
-    // Esto dispara la señal de "Compra" a Meta al cargar la página
-    if (typeof window !== 'undefined' && (window as any).fbq) {
+    const metodo = searchParams.get('metodo');
+    const unidades = searchParams.get('unidades');
+    const value = unidades ? PRICE_BY_UNIDADES[unidades] : undefined;
+
+    // Solo dispara Purchase si llegamos desde el flujo de pago con params válidos,
+    // no en visitas directas a /gracias.
+    if (metodo && value !== undefined && typeof window !== 'undefined' && (window as any).fbq) {
       (window as any).fbq('track', 'Purchase', {
-        value: 59900,
+        value,
         currency: 'COP',
         content_name: 'Mascarilla Exfoliante Capilar',
       });
     }
-  }, []);
+  }, [searchParams]);
 
   return (
     <main style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '2rem', fontFamily: 'sans-serif' }}>
