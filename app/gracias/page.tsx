@@ -1,30 +1,32 @@
 'use client';
 import { useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import { fbq } from '@/app/lib/fbq';
+import { PRICE_BY_UNIDADES, PAYMENT_URLS, type OptionKey } from '@/app/lib/pricing';
 
-const PRICE_BY_UNIDADES: Record<string, number> = {
-  '1': 69900,
-  '2': 109000,
-};
+const isOptionKey = (v: string | null): v is OptionKey => v === '1' || v === '2';
 
 function GraciasContent() {
   const searchParams = useSearchParams();
+  const unidadesParam = searchParams.get('unidades');
+  const unidades = isOptionKey(unidadesParam) ? unidadesParam : null;
+  const paymentUrl = PAYMENT_URLS[unidades ?? '1'];
 
   useEffect(() => {
     const metodo = searchParams.get('metodo');
-    const unidades = searchParams.get('unidades');
     const value = unidades ? PRICE_BY_UNIDADES[unidades] : undefined;
 
     // Solo dispara Purchase si llegamos desde el flujo de pago con params válidos,
     // no en visitas directas a /gracias.
-    if (metodo && value !== undefined && typeof window !== 'undefined' && (window as any).fbq) {
-      (window as any).fbq('track', 'Purchase', {
+    if (metodo && value !== undefined) {
+      fbq('track', 'Purchase', {
         value,
         currency: 'COP',
         content_name: 'Mascarilla Exfoliante Capilar',
       });
     }
-  }, [searchParams]);
+  }, [searchParams, unidades]);
 
   return (
     <main style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '2rem', fontFamily: 'sans-serif' }}>
@@ -37,12 +39,12 @@ function GraciasContent() {
         <p style={{ fontSize: '1.1rem', color: '#555', marginBottom: '1.5rem' }}>
           Si elegiste <b>pago online</b>, asegúrate de haber finalizado el proceso en Mercado Pago. Si elegiste <b>pago contraentrega</b>, nos comunicaremos contigo vía WhatsApp en breve para coordinar el envío.
         </p>
-        <a href="https://mpago.li/1ZF4qDN" target="_blank" style={{ display: 'inline-block', padding: '1rem 2rem', background: '#00a8e8', color: 'white', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold' }}>
+        <a href={paymentUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', padding: '1rem 2rem', background: '#00a8e8', color: 'white', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold' }}>
           ¿Necesitas pagar? Haz clic aquí
         </a>
       </div>
 
-      <a href="/" style={{ marginTop: '3rem', color: '#666', textDecoration: 'underline' }}>Volver al inicio</a>
+      <Link href="/" style={{ marginTop: '3rem', color: '#666', textDecoration: 'underline' }}>Volver al inicio</Link>
     </main>
   );
 }

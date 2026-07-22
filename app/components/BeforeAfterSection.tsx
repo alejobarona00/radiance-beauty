@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
+import { BuyButton } from "@/app/components/BuyButton";
 
 export const BeforeAfterSection = () => {
   const [sliderPos, setSliderPos] = useState(50);
@@ -71,7 +72,7 @@ export const BeforeAfterSection = () => {
         >
           <div
             ref={containerRef}
-            className="relative overflow-hidden rounded-2xl shadow-2xl aspect-[4/3] cursor-ew-resize select-none"
+            className="relative overflow-hidden rounded-2xl shadow-2xl aspect-[4/3] cursor-ew-resize select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-warm-stone"
             onMouseMove={handleMouseMove}
             onTouchMove={handleTouchMove}
             onKeyDown={handleKeyDown}
@@ -84,19 +85,23 @@ export const BeforeAfterSection = () => {
           >
             {/* Imagen ANTES — fondo */}
             <img
-              src="/antes.png"
+              src="/antes-opt.jpg"
               alt="Cuero cabelludo antes del tratamiento"
               className="absolute inset-0 w-full h-full object-cover pointer-events-none"
               draggable={false}
+              loading="lazy"
+              decoding="async"
             />
 
             {/* Imagen DESPUÉS — encima, revelada por clip-path */}
             <img
-              src="/despues.png"
+              src="/despues-opt.jpg"
               alt="Cuero cabelludo después del tratamiento"
               className="absolute inset-0 w-full h-full object-cover pointer-events-none"
               style={{ clipPath: `inset(0 ${100 - sliderPos}% 0 0)` }}
               draggable={false}
+              loading="lazy"
+              decoding="async"
             />
 
             {/* Línea divisora vertical */}
@@ -152,6 +157,17 @@ export const BeforeAfterSection = () => {
               Después
             </div>
           </div>
+        </motion.div>
+
+        {/* CTA intermedio */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="flex justify-center mt-10 lg:mt-14"
+        >
+          <BuyButton trackingId="before_after_section" />
         </motion.div>
 
       </div>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Inter } from "next/font/google";
 import Script from "next/script"; // Importamos el componente Script
+import { SITE_URL } from "@/app/lib/site";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -16,10 +17,43 @@ const inter = Inter({
   weight: ["300", "400", "500", "600"],
 });
 
+const SITE_TITLE = "Radiance Beauty — Mascarilla Exfoliante Capilar";
+const SITE_DESCRIPTION =
+  "Purificación profunda con Semillas de Macadamia, Proteína de Trigo y Aceite de Jojoba. Rompe el ciclo del lavado diario.";
+
 export const metadata: Metadata = {
-  title: "Radiance Beauty — Mascarilla Exfoliante Capilar",
-  description:
-    "Purificación profunda con Semillas de Macadamia, Proteína de Trigo y Aceite de Jojoba. Rompe el ciclo del lavado diario.",
+  metadataBase: new URL(SITE_URL),
+  title: SITE_TITLE,
+  description: SITE_DESCRIPTION,
+  alternates: {
+    canonical: "/",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  openGraph: {
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    url: "/",
+    siteName: "Radiance Beauty",
+    locale: "es_CO",
+    type: "website",
+    images: [
+      {
+        url: "/radiancelife-opt.jpg",
+        width: 1080,
+        height: 1080,
+        alt: SITE_TITLE,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    images: ["/radiancelife-opt.jpg"],
+  },
 };
 
 export default function RootLayout({
@@ -33,6 +67,13 @@ export default function RootLayout({
       className={`${playfair.variable} ${inter.variable} h-full antialiased`}
     >
       <head>
+        {/* Adelanta la descarga del fondo del Hero (primer elemento visual de la página) */}
+        <link rel="preload" as="image" href="/radiancelife-opt.jpg" fetchPriority="high" />
+
+        {/* Adelanta la conexión con el dominio del Píxel de Meta */}
+        <link rel="preconnect" href="https://connect.facebook.net" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://connect.facebook.net" />
+
         {/* Aquí insertamos el Píxel de Meta correctamente */}
         <Script id="meta-pixel" strategy="afterInteractive">
           {`

@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { ReactNode } from "react";
+import { BuyButton } from "@/app/components/BuyButton";
 
 interface Benefit {
   title: string;
@@ -179,9 +180,11 @@ export const ProductSection = () => {
 
             {/* Imagen real del producto — el rey */}
             <img
-              src="/mascarilla.png"
+              src="/mascarilla-opt.png"
               alt="Mascarilla Radiance"
               className="relative z-10 object-contain w-[320px] h-auto md:w-[400px]"
+              loading="lazy"
+              decoding="async"
               style={{
                 width: "min(420px, 85vw)",
                 height: "min(420px, 85vw)",
@@ -200,7 +203,7 @@ export const ProductSection = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-80px" }}
               transition={{ duration: 0.6, delay: i * 0.15, ease: "easeOut" }}
-              className="bg-ivory rounded-2xl p-7 border border-gold/20 hover:border-gold/45 hover:shadow-lg hover:shadow-gold/10 transition-all duration-300 group"
+              className="bg-ivory rounded-2xl p-7 border border-gold/20 hover:border-gold/45 hover:shadow-lg hover:shadow-gold/10 hover:-translate-y-1 transition-all duration-300 group"
             >
               <div className="w-10 h-10 rounded-full border border-gold/40 flex items-center justify-center text-gold mb-5 group-hover:border-gold/70 transition-colors duration-300">
                 {benefit.icon}
@@ -214,6 +217,17 @@ export const ProductSection = () => {
             </motion.div>
           ))}
         </div>
+
+        {/* CTA intermedio */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="flex justify-center mt-12 lg:mt-16"
+        >
+          <BuyButton trackingId="product_section" />
+        </motion.div>
 
       </div>
     </section>

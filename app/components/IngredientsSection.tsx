@@ -7,40 +7,50 @@ const ingredients = [
     number: "01",
     name: "Semillas de Macadamia",
     tag: "Exfoliación profunda",
-    description:
-      "Granos ultrafinos que remueven células muertas y depósitos de sebo del cuero cabelludo con precisión, sin inflamar ni dañar el folículo piloso.",
+    description: [
+      "Remueve células muertas y sebo acumulado.",
+      "Actúa con precisión, sin inflamar el folículo.",
+    ],
     benefit: "Cuero cabelludo libre e impuro desde el primer uso.",
   },
   {
     number: "02",
     name: "Proteína de Trigo",
     tag: "Fortalecimiento capilar",
-    description:
-      "Se une a la queratina para reparar la fibra dañada desde adentro, reduce la porosidad y fortalece cada hebra desde su punto de nacimiento.",
+    description: [
+      "Repara la fibra dañada uniéndose a la queratina.",
+      "Reduce la porosidad y fortalece desde la raíz.",
+    ],
     benefit: "Menos caída, más densidad y resistencia visible.",
   },
   {
     number: "03",
     name: "Aceite de Jojoba",
     tag: "Regulador natural de grasa",
-    description:
-      "Imita molecularmente el sebo humano, enviando la señal exacta al folículo para que deje de producir grasa en exceso de forma natural.",
+    description: [
+      "Imita el sebo natural del cuero cabelludo.",
+      "Regula la producción de grasa de forma natural.",
+    ],
     benefit: "Más días entre lavados, sin raíz brillante ni pesada.",
   },
   {
     number: "04",
     name: "Aloe Vera",
     tag: "Calmante e hidratante",
-    description:
-      "Su gel penetra el cuero cabelludo para calmar la inflamación, aliviar la picazón al instante y reponer hidratación en toda la fibra capilar.",
+    description: [
+      "Calma la inflamación y alivia la picazón al instante.",
+      "Repone hidratación en toda la fibra capilar.",
+    ],
     benefit: "Cero picazón. Sensación de frescura que se mantiene.",
   },
   {
     number: "05",
     name: "Vitamina E",
     tag: "Escudo antioxidante",
-    description:
-      "Neutraliza los radicales libres que opacan el color, debilitan la estructura capilar y aceleran el envejecimiento de cada hebra.",
+    description: [
+      "Neutraliza los radicales libres que opacan el color.",
+      "Protege la estructura capilar del envejecimiento.",
+    ],
     benefit: "Brillo natural y protección activa contra el daño ambiental.",
   },
 ];
@@ -126,9 +136,14 @@ export const IngredientsSection = () => {
 
                   {/* Columna de descripción */}
                   <div className="flex-1 min-w-0">
-                    <p className="font-body text-warm-gray text-base leading-relaxed mb-5">
-                      {item.description}
-                    </p>
+                    <ul className="flex flex-col gap-2 mb-5" aria-label={`Beneficios de ${item.name}`}>
+                      {item.description.map((line) => (
+                        <li key={line} className="flex items-start gap-2.5 font-body text-warm-gray text-base leading-snug">
+                          <span className="w-1 h-1 rounded-full bg-gold/50 flex-shrink-0 mt-2.5" aria-hidden="true" />
+                          {line}
+                        </li>
+                      ))}
+                    </ul>
                     <div className="flex items-start gap-3">
                       <span
                         className="w-1.5 h-1.5 rounded-full bg-gold flex-shrink-0 mt-[6px]"

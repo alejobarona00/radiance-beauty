@@ -1,11 +1,12 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { BuyButton } from "@/app/components/BuyButton";
 
 export const CtaSection = () => {
   return (
     <section
-      className="bg-ivory pt-16 pb-0 px-5 sm:px-8 lg:px-16 lg:pt-28 overflow-hidden"
+      className="bg-ivory pt-16 pb-14 px-5 sm:px-8 lg:px-16 lg:pt-28 lg:pb-20 overflow-hidden"
       aria-label="Presentación final del producto"
     >
       <div className="max-w-2xl mx-auto text-center">
@@ -65,15 +66,28 @@ export const CtaSection = () => {
           <div className="absolute inset-0 rounded-[40%] border border-gold/40 animate-[spin_40s_linear_infinite]" />
           <div className="absolute inset-2 rounded-[40%] border border-gold/25" />
           <img
-            src="/mascarilla1.png"
+            src="/mascarilla1-opt.png"
             alt="Mascarilla Exfoliante Capilar"
             className="relative z-10 w-[580px] h-[600px] object-cover"
+            loading="lazy"
+            decoding="async"
             style={{
               maxWidth: "88vw",
               maxHeight: "90vw",
               filter: "drop-shadow(0 16px 40px rgba(200,169,110,0.55))",
             }}
           />
+        </motion.div>
+
+        {/* CTA de cierre */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="flex justify-center -mt-4 lg:mt-0"
+        >
+          <BuyButton trackingId="cta_section" />
         </motion.div>
 
       </div>

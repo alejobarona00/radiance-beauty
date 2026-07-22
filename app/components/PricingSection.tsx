@@ -2,38 +2,46 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { fbq } from "@/app/lib/fbq";
+import {
+  PRICE_BY_UNIDADES,
+  COMPARE_AT_BY_UNIDADES,
+  SHIPPING_BY_UNIDADES,
+  PRODUCT_PRICE_BY_UNIDADES,
+  PAYMENT_URLS,
+  type OptionKey,
+} from "@/app/lib/pricing";
 
-type OptionKey = "1" | "2";
 type PaymentMethod = "contraentrega" | "anticipado";
+
+const fmt = (n: number) => "$" + n.toLocaleString("es-CO");
+
+// Ahorro real de comprar el pack de 2 vs. pedir la opción de 1 unidad dos veces
+// (incluye el envío duplicado que te ahorras). Se recalcula solo si cambian los precios.
+const bundleSavings = 2 * PRICE_BY_UNIDADES["1"] - PRICE_BY_UNIDADES["2"];
 
 const PRICING = {
   "1": {
     label: "1 Unidad",
-    productPrice: 59900,
-    compareAt: 89000,
-    shipping: 10000,
-    total: 69900,
+    productPrice: PRODUCT_PRICE_BY_UNIDADES["1"],
+    compareAt: COMPARE_AT_BY_UNIDADES["1"],
+    shipping: SHIPPING_BY_UNIDADES["1"],
+    total: PRICE_BY_UNIDADES["1"],
     badge: null,
     savingsNote: null,
   },
   "2": {
     label: "2 Unidades",
-    productPrice: 109000,
-    compareAt: 178000,
-    shipping: 0,
-    total: 109000,
+    productPrice: PRODUCT_PRICE_BY_UNIDADES["2"],
+    compareAt: COMPARE_AT_BY_UNIDADES["2"],
+    shipping: SHIPPING_BY_UNIDADES["2"],
+    total: PRICE_BY_UNIDADES["2"],
     badge: "Más popular",
-    savingsNote: "Ahorras $10.800 vs comprar por separado",
+    savingsNote: `Ahorras ${fmt(bundleSavings)} vs comprar por separado`,
   },
 } as const;
 
 const SHEETS_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbw8UurWxlDaKbow4QU-hqv5vE67tNLbqUMXqoCyTZi9p57Zgi5Bu-tVR5buBiweSWamWA/exec";
-const PAYMENT_URLS: Record<OptionKey, string> = {
-  "1": "https://mpago.li/1ZF4qDN",
-  "2": "https://mpago.li/33fF2wx",
-};
-
-const fmt = (n: number) => "$" + n.toLocaleString("es-CO");
 
 const applyDiscount = (total: number) => Math.round((total * 0.95) / 100) * 100;
 
@@ -53,13 +61,59 @@ const inputClass =
 const labelClass =
   "font-body text-xs text-warm-gray tracking-wide uppercase block mb-1.5";
 
+const urgencyBoxClass =
+  "mt-2 rounded-xl border p-3 text-center font-body text-sm font-bold";
+const urgencyBoxStyle = { background: "#fff0f0", borderColor: "#ffcccc", color: "#d9534f" };
+
+/** Estado propio: aísla el re-render de cada segundo al resto de la sección. */
+const StockCounter = () => {
+  const [stock, setStock] = useState(7);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setStock((prev) => Math.max(1, prev - (Math.random() < 0.5 ? 1 : 2)));
+    }, 12000);
+    return () => clearInterval(id);
+  }, []);
+
+  return (
+    <div className={`mt-4 ${urgencyBoxClass}`} style={urgencyBoxStyle}>
+      ⚠️ ¡Solo quedan <span>{stock}</span> unidades disponibles en inventario!
+    </div>
+  );
+};
+
+const ShippingCountdown = () => {
+  const [timeLeft, setTimeLeft] = useState(600);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setTimeLeft((t) => (t > 0 ? t - 1 : 0));
+    }, 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  return (
+    <div className={urgencyBoxClass} style={urgencyBoxStyle}>
+      {timeLeft > 0 ? (
+        <>
+          ⚠️ ¡Pide ahora y despachamos hoy! Tiempo restante:{" "}
+          <span>
+            {String(Math.floor(timeLeft / 60)).padStart(2, "0")}:{String(timeLeft % 60).padStart(2, "0")}
+          </span>
+        </>
+      ) : (
+        <>⚠️ ¡Pide ya! Últimas unidades para despacho hoy.</>
+      )}
+    </div>
+  );
+};
+
 export const PricingSection = () => {
   const [selected, setSelected] = useState<OptionKey>("1");
   const [showModal, setShowModal] = useState(false);
   const [orderConfirmed, setOrderConfirmed] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [stock, setStock] = useState(7);
-  const [timeLeft, setTimeLeft] = useState(600);
   const [form, setForm] = useState<FormData>({
     nombre: "",
     whatsapp: "",
@@ -73,21 +127,10 @@ export const PricingSection = () => {
   const current = PRICING[selected];
   const discountedTotal = applyDiscount(current.total);
 
-  // Contador de inventario: baja 1 o 2 unidades cada 12 segundos
-  useEffect(() => {
-    const id = setInterval(() => {
-      setStock((prev) => Math.max(1, prev - (Math.random() < 0.5 ? 1 : 2)));
-    }, 12000);
-    return () => clearInterval(id);
-  }, []);
-
-  // Cuenta regresiva de 10 minutos
-  useEffect(() => {
-    const id = setInterval(() => {
-      setTimeLeft((t) => (t > 0 ? t - 1 : 0));
-    }, 1000);
-    return () => clearInterval(id);
-  }, []);
+  const closeModal = () => {
+    setShowModal(false);
+    setOrderConfirmed(false);
+  };
 
   // Bloquear scroll con modal abierto
   useEffect(() => {
@@ -103,11 +146,6 @@ export const PricingSection = () => {
     if (showModal) window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
   }, [showModal]);
-
-  const closeModal = () => {
-    setShowModal(false);
-    setOrderConfirmed(false);
-  };
 
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -139,8 +177,6 @@ export const PricingSection = () => {
       fecha: new Date().toLocaleString("es-CO"),
     };
 
-    console.log("📦 Nuevo pedido Radiance Beauty:", orderData);
-
     if (form.paymentMethod === "anticipado") {
       try {
         await fetch(SHEETS_WEBHOOK_URL, {
@@ -152,9 +188,8 @@ export const PricingSection = () => {
       } catch (err) {
         console.error("Error enviando a Google Sheets:", err);
       }
-      if (typeof window !== "undefined" && typeof (window as any).fbq === "function") {
-        (window as any).fbq("track", "Purchase", { value: discountedTotal, currency: "COP" });
-      }
+      // Purchase se dispara en /gracias solo tras confirmar el regreso desde Mercado Pago
+      // (evita el doble conteo: éste abre el pago, no lo confirma).
       setIsSubmitting(false);
       window.open(PAYMENT_URLS[selected], "_blank", "noopener,noreferrer");
     } else {
@@ -168,9 +203,7 @@ export const PricingSection = () => {
       } catch (err) {
         console.error("Error enviando a Google Sheets:", err);
       }
-      if (typeof window !== "undefined" && typeof (window as any).fbq === "function") {
-        (window as any).fbq("track", "Purchase", { value: current.total, currency: "COP" });
-      }
+      fbq("track", "Purchase", { value: current.total, currency: "COP" });
       setIsSubmitting(false);
       setOrderConfirmed(true);
     }
@@ -203,23 +236,10 @@ export const PricingSection = () => {
           </h2>
 
           {/* Contador de inventario */}
-          <div className="mt-4 rounded-xl border p-3 text-center font-body text-sm font-bold" style={{ background: "#fff0f0", borderColor: "#ffcccc", color: "#d9534f" }}>
-            ⚠️ ¡Solo quedan <span>{stock}</span> unidades disponibles en inventario!
-          </div>
+          <StockCounter />
 
           {/* Cuenta regresiva de envío */}
-          <div className="mt-2 rounded-xl border p-3 text-center font-body text-sm font-bold" style={{ background: "#fff0f0", borderColor: "#ffcccc", color: "#d9534f" }}>
-            {timeLeft > 0 ? (
-              <>
-                ⚠️ ¡Pide ahora y despachamos hoy! Tiempo restante:{" "}
-                <span>
-                  {String(Math.floor(timeLeft / 60)).padStart(2, "0")}:{String(timeLeft % 60).padStart(2, "0")}
-                </span>
-              </>
-            ) : (
-              <>⚠️ ¡Pide ya! Últimas unidades para despacho hoy.</>
-            )}
-          </div>
+          <ShippingCountdown />
         </motion.div>
 
         {/* Selector de unidades */}
@@ -238,7 +258,7 @@ export const PricingSection = () => {
                 key={key}
                 onClick={() => setSelected(key)}
                 aria-pressed={isSelected}
-                className={`relative rounded-2xl border-2 p-5 text-left transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-ivory ${
+                className={`relative rounded-2xl border-2 p-5 text-left transition-all duration-200 focus-ring-gold ${
                   isSelected
                     ? "border-gold bg-gold/5 shadow-lg shadow-gold/10"
                     : "border-warm-stone hover:border-gold/40 bg-warm-stone/30"
@@ -323,12 +343,21 @@ export const PricingSection = () => {
           className="flex justify-center"
         >
           <motion.button
-            onClick={() => setShowModal(true)}
+            onClick={() => {
+              fbq("track", "InitiateCheckout", {
+                value: current.total,
+                currency: "COP",
+                content_ids: [selected],
+                content_name: current.label,
+                num_items: Number(selected),
+              });
+              setShowModal(true);
+            }}
             animate={{ scale: [1, 1.03, 1] }}
             transition={{ repeat: Infinity, duration: 2.4, ease: "easeInOut" }}
             whileTap={{ scale: 0.97 }}
             aria-label="Abrir formulario de compra"
-            className="w-full max-w-sm rounded-full bg-terracota hover:bg-terracota-dark text-ivory font-body font-bold text-base tracking-[0.2em] uppercase px-10 py-5 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terracota focus-visible:ring-offset-2 focus-visible:ring-offset-ivory"
+            className="w-full max-w-sm rounded-full bg-terracota hover:bg-terracota-dark text-ivory font-body font-bold text-base tracking-[0.2em] uppercase px-10 py-5 transition-all duration-200 hover:-translate-y-0.5 focus-ring-terracota"
             style={{ boxShadow: "0 8px 32px rgba(196,87,47,0.35)" }}
           >
             ¡Comprar Ahora!
@@ -613,7 +642,7 @@ export const PricingSection = () => {
                       <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="w-full mt-2 rounded-full bg-terracota hover:bg-terracota-dark text-ivory font-body font-bold text-sm tracking-[0.18em] uppercase py-4 transition-all duration-200 hover:shadow-lg hover:shadow-terracota/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terracota disabled:opacity-60 disabled:cursor-not-allowed"
+                        className="w-full mt-2 rounded-full bg-terracota hover:bg-terracota-dark text-ivory font-body font-bold text-sm tracking-[0.18em] uppercase py-4 transition-all duration-200 hover:shadow-lg hover:shadow-terracota/25 focus-ring-terracota disabled:opacity-60 disabled:cursor-not-allowed"
                       >
                         {isSubmitting ? "Procesando..." : "Finalizar Pedido →"}
                       </button>

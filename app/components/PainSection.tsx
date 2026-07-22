@@ -139,7 +139,7 @@ export const PainSection = () => {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, margin: "-80px" }}
               transition={{ duration: 0.6, delay: i * 0.15, ease: "easeOut" }}
-              className="group border border-gold/20 rounded-2xl p-5 md:p-8 bg-white/[0.03] hover:bg-white/[0.06] hover:border-gold/40 transition-all duration-300"
+              className="group border border-gold/20 rounded-2xl p-5 md:p-8 bg-white/[0.03] hover:bg-white/[0.06] hover:border-gold/40 hover:-translate-y-1 transition-all duration-300"
             >
               <div className="flex gap-5">
                 <div className="flex-shrink-0 w-11 h-11 rounded-full border border-gold/40 flex items-center justify-center text-gold group-hover:border-gold/70 transition-colors duration-300">

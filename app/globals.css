@@ -22,3 +22,18 @@ body {
   background-color: #FAF7F2;
   color: #1C1C1E;
 }
+
+/*
+  Anillo de foco de teclado en CSS plano (no utilidades Tailwind): en este
+  proyecto ni `ring-*` ni `outline-*` de Tailwind generan reglas para colores
+  del theme en combinación con :focus-visible — ver auditoría de accesibilidad.
+*/
+.focus-ring-terracota:focus-visible {
+  outline: 2px solid #C4572F;
+  outline-offset: 2px;
+}
+
+.focus-ring-gold:focus-visible {
+  outline: 2px solid #C8A96E;
+  outline-offset: 2px;
+}

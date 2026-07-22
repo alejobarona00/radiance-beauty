@@ -1,6 +1,7 @@
 export const Footer = () => {
   return (
     <footer
+      id="site-footer"
       className="bg-charcoal py-10 px-5 sm:px-8 lg:px-16"
       aria-label="Pie de página"
     >
@@ -12,6 +13,8 @@ export const Footer = () => {
             src="/logo.png"
             alt="Radiance Beauty logo"
             className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+            loading="lazy"
+            decoding="async"
           />
           <span className="font-display text-ivory text-sm tracking-[0.2em] uppercase">
             Radiance Beauty

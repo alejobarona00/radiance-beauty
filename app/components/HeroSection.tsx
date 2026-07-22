@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { fbq } from "@/app/lib/fbq";
 
 export const HeroSection = () => {
   const handleScrollToNext = () => {
@@ -8,12 +9,13 @@ export const HeroSection = () => {
   };
 
   const handleScrollToPricing = () => {
+    fbq("trackCustom", "CTAClick", { cta_location: "hero" });
     document.getElementById("precio")?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
     <section
-      className="relative min-h-screen bg-[url('/radiancelife.png')] bg-cover bg-center bg-no-repeat flex flex-col"
+      className="relative min-h-screen bg-[url('/radiancelife-opt.jpg')] bg-cover bg-center bg-no-repeat flex flex-col"
       aria-label="Sección principal de Radiance Beauty"
     >
       {/* Overlay oscuro para legibilidad */}
@@ -104,7 +106,7 @@ export const HeroSection = () => {
               transition={{ repeat: Infinity, duration: 2.4, ease: "easeInOut" }}
               whileTap={{ scale: 0.97 }}
               aria-label="Ir a comprar el tratamiento"
-              className="font-body font-bold text-sm text-ivory tracking-[0.2em] uppercase flex items-center gap-3 bg-terracota hover:bg-terracota-dark px-8 py-4 rounded-full transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terracota focus-visible:ring-offset-2 focus-visible:ring-offset-black/50"
+              className="font-body font-bold text-sm text-ivory tracking-[0.2em] uppercase flex items-center gap-3 bg-terracota hover:bg-terracota-dark hover:-translate-y-0.5 px-8 py-4 rounded-full transition-all duration-200 focus-ring-terracota"
               style={{ boxShadow: "0 8px 32px rgba(196,87,47,0.45)" }}
             >
               Quiero mi Mascarilla
@@ -125,6 +127,16 @@ export const HeroSection = () => {
               </svg>
             </button>
           </motion.div>
+
+          {/* Banda de confianza discreta */}
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.95 }}
+            className="font-body text-ivory/45 text-[11px] tracking-wide mt-6 leading-relaxed"
+          >
+            Pago seguro · Envíos a toda Colombia · Producto colombiano · Múltiples medios de pago
+          </motion.p>
         </div>
       </div>
 

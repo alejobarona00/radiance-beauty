@@ -1,13 +1,18 @@
 "use client";
 
-// Reemplaza este valor con tu link real de Mercado Pago
-const PAYMENT_URL = "https://tally.so/r/5BMAN6";
+import { fbq } from "@/app/lib/fbq";
 
 interface BuyButtonProps {
   label?: string;
   variant?: "terracota" | "gold";
   size?: "default" | "large";
   noteColor?: "dark" | "light";
+  /** Muestra la nota de "Procesado por Mercado Pago" debajo del botón. */
+  showNote?: boolean;
+  /** Estira el botón al 100% del contenedor padre (para el sticky CTA móvil). */
+  fullWidth?: boolean;
+  /** Identificador del punto del funnel donde vive este botón, para el evento de Meta Pixel. */
+  trackingId: string;
 }
 
 const LockIcon = () => (
@@ -49,24 +54,33 @@ export const BuyButton = ({
   variant = "terracota",
   size = "default",
   noteColor = "dark",
+  showNote = true,
+  fullWidth = false,
+  trackingId,
 }: BuyButtonProps) => {
   const noteTextClass =
     noteColor === "light" ? "text-ivory/50" : "text-warm-gray/70";
   const noteHighlightClass =
     noteColor === "light" ? "text-ivory/80" : "text-warm-gray";
 
+  const handleClick = () => {
+    fbq("trackCustom", "CTAClick", { cta_location: trackingId });
+    document.getElementById("precio")?.scrollIntoView({ behavior: "smooth" });
+  };
+
   return (
     <div className="flex flex-col items-center gap-3">
-      <a
-        href={PAYMENT_URL}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label={`${label} — se abrirá en una nueva pestaña`}
-        className={`inline-flex items-center gap-3 font-body font-medium tracking-[0.15em] uppercase rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
+      <button
+        type="button"
+        onClick={handleClick}
+        aria-label={`${label} — ir a la sección de compra`}
+        className={`inline-flex items-center gap-3 font-body font-medium tracking-[0.15em] uppercase rounded-full transition-all duration-300 hover:-translate-y-0.5 ${
           variant === "terracota"
-            ? "bg-terracota hover:bg-terracota-dark text-ivory hover:shadow-xl hover:shadow-terracota/25 focus-visible:ring-terracota focus-visible:ring-offset-ivory"
-            : "text-charcoal hover:shadow-xl hover:shadow-gold/30 focus-visible:ring-gold focus-visible:ring-offset-ivory"
-        } ${size === "large" ? "text-base px-12 py-5" : "text-sm px-8 py-4"}`}
+            ? "bg-terracota hover:bg-terracota-dark text-ivory hover:shadow-xl hover:shadow-terracota/25 focus-ring-terracota"
+            : "text-charcoal hover:shadow-xl hover:shadow-gold/30 focus-ring-gold"
+        } ${size === "large" ? "text-base px-12 py-5" : "text-sm px-8 py-4"} ${
+          fullWidth ? "w-full justify-center" : ""
+        }`}
         style={
           variant === "gold"
             ? {
@@ -92,19 +106,21 @@ export const BuyButton = ({
             d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"
           />
         </svg>
-      </a>
+      </button>
 
       {/* Nota de seguridad Mercado Pago */}
-      <div className={`flex items-center gap-1.5 ${noteTextClass}`}>
-        <LockIcon />
-        <span className="font-body text-[11px] leading-none">
-          Procesado de forma segura por{" "}
-          <span className={`font-medium ${noteHighlightClass}`}>
-            Mercado Pago
+      {showNote && (
+        <div className={`flex items-center gap-1.5 ${noteTextClass}`}>
+          <LockIcon />
+          <span className="font-body text-[11px] leading-none">
+            Procesado de forma segura por{" "}
+            <span className={`font-medium ${noteHighlightClass}`}>
+              Mercado Pago
+            </span>
           </span>
-        </span>
-        <ShieldIcon />
-      </div>
+          <ShieldIcon />
+        </div>
+      )}
     </div>
   );
 };

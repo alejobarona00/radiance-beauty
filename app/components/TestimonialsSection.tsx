@@ -7,6 +7,10 @@ interface Testimonial {
   author: string;
   detail: string;
   week: string;
+  /** Opcional: se muestra si existe una foto real disponible. */
+  photo?: string;
+  /** Opcional: ciudad de la clienta, pendiente de completar con datos reales. */
+  city?: string;
 }
 
 const testimonials: Testimonial[] = [
@@ -16,6 +20,7 @@ const testimonials: Testimonial[] = [
     author: "Valentina M.",
     detail: "Cabello rizado · Cuero cabelludo graso",
     week: "Desde la semana 1",
+    photo: "/retratomujer-opt.png",
   },
   {
     quote:
@@ -32,6 +37,40 @@ const testimonials: Testimonial[] = [
     week: "Semana 1",
   },
 ];
+
+const getInitials = (name: string) =>
+  name
+    .split(" ")
+    .filter(Boolean)
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+
+/** Muestra la foto real si existe; si no, un monograma — nunca una foto inventada. */
+const Avatar = ({ testimonial, size = "md" }: { testimonial: Testimonial; size?: "sm" | "md" }) => {
+  const dim = size === "md" ? "w-16 h-16" : "w-11 h-11";
+  if (testimonial.photo) {
+    return (
+      <div className={`${dim} rounded-full overflow-hidden border border-gold/40 bg-warm-stone/20 flex-shrink-0`}>
+        <img
+          src={testimonial.photo}
+          alt={`Foto de ${testimonial.author}`}
+          className="w-full h-full object-cover"
+          loading="lazy"
+        />
+      </div>
+    );
+  }
+  return (
+    <div
+      className={`${dim} rounded-full border border-gold/40 bg-warm-stone/40 flex items-center justify-center flex-shrink-0`}
+      aria-hidden="true"
+    >
+      <span className="font-display text-gold text-sm">{getInitials(testimonial.author)}</span>
+    </div>
+  );
+};
 
 const StarRating = () => (
   <div className="flex gap-1" aria-label="Calificación 5 de 5 estrellas">
@@ -107,19 +146,15 @@ export const TestimonialsSection = () => {
               <div className="h-px w-full lg:w-px lg:h-16 bg-gold/20" aria-hidden="true" />
 
               <div className="flex items-center gap-4">
-                {/* Foto de la clienta */}
-                <div className="w-16 h-16 rounded-full overflow-hidden border border-gold/40 bg-warm-stone/20 flex-shrink-0">
-                  <img
-                    src="/retratomujer.png"
-                    alt="Foto de Valentina M."
-                    className="w-full h-full object-cover"
-                  />
-                </div>
+                <Avatar testimonial={testimonials[0]} size="md" />
 
-                {/* Nombre, detalle y badge */}
+                {/* Nombre, ciudad, detalle y badge */}
                 <div>
                   <span className="font-body text-ivory text-sm font-medium block mb-0.5">
                     {testimonials[0].author}
+                    {testimonials[0].city && (
+                      <span className="text-warm-gray font-normal"> · {testimonials[0].city}</span>
+                    )}
                   </span>
                   <span className="font-body text-warm-gray text-xs block mb-3">
                     {testimonials[0].detail}
@@ -142,7 +177,7 @@ export const TestimonialsSection = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-80px" }}
               transition={{ duration: 0.65, delay: i * 0.15, ease: "easeOut" }}
-              className="relative rounded-2xl border border-gold/20 bg-white/[0.03] hover:bg-white/[0.06] hover:border-gold/40 transition-all duration-300 p-8 overflow-hidden group"
+              className="relative rounded-2xl border border-gold/20 bg-white/[0.03] hover:bg-white/[0.06] hover:border-gold/40 hover:-translate-y-1 transition-all duration-300 p-8 overflow-hidden group"
             >
               {/* Comilla decorativa */}
               <span
@@ -158,13 +193,17 @@ export const TestimonialsSection = () => {
                   &#8220;{t.quote}&#8221;
                 </p>
                 <div className="flex items-end justify-between gap-4">
-                  <div>
-                    <span className="font-body text-ivory text-sm font-medium block mb-0.5">
-                      {t.author}
-                    </span>
-                    <span className="font-body text-warm-gray text-xs">
-                      {t.detail}
-                    </span>
+                  <div className="flex items-center gap-3">
+                    <Avatar testimonial={t} size="sm" />
+                    <div>
+                      <span className="font-body text-ivory text-sm font-medium block mb-0.5">
+                        {t.author}
+                        {t.city && <span className="text-warm-gray font-normal"> · {t.city}</span>}
+                      </span>
+                      <span className="font-body text-warm-gray text-xs">
+                        {t.detail}
+                      </span>
+                    </div>
                   </div>
                   <span className="font-body text-gold text-[10px] tracking-[0.2em] uppercase border border-gold/30 px-3 py-1 rounded-full flex-shrink-0">
                     {t.week}

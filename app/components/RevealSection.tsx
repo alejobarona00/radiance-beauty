@@ -61,10 +61,9 @@ export const RevealSection = () => {
           transition={{ duration: 0.65, delay: 0.1, ease: "easeOut" }}
           className="font-body text-warm-gray text-base lg:text-lg leading-relaxed text-center max-w-2xl mx-auto mb-10 lg:mb-16"
         >
-          Todos los síntomas que sufres — el exceso de grasa, la picazón, la
-          falta de volumen — nacen del mismo origen: un cuero cabelludo saturado
-          de residuos, sebo y células muertas que ningún champú elimina en
-          profundidad.
+          El exceso de grasa, la picazón, la falta de volumen: todo nace del
+          mismo origen. Un cuero cabelludo saturado de residuos que ningún
+          champú elimina en profundidad.
           <br />
           <br />
           Lavas el cabello, pero nunca{" "}
@@ -82,8 +81,8 @@ export const RevealSection = () => {
           className="max-w-xl mx-auto border-l-2 border-gold pl-5 sm:pl-8 py-2"
         >
           <p className="font-display italic text-xl sm:text-2xl lg:text-3xl text-charcoal leading-snug">
-            "Es como limpiar el piso{" "}
-            <em className="not-italic text-gold">sin barrer primero.</em>"
+            &ldquo;Es como limpiar el piso{" "}
+            <em className="not-italic text-gold">sin barrer primero.</em>&rdquo;
           </p>
           <span className="font-body text-xs text-warm-gray tracking-[0.25em] uppercase mt-4 block">
             — Radiance Beauty

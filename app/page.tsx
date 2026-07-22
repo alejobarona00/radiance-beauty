@@ -1,5 +1,8 @@
 import { StickyNav } from "@/app/components/StickyNav";
+import { StickyBuyButton } from "@/app/components/StickyBuyButton";
+import { ViewContentPixel } from "@/app/components/ViewContentPixel";
 import { HeroSection } from "@/app/components/HeroSection";
+import { QuickBenefits } from "@/app/components/QuickBenefits";
 import { PainSection } from "@/app/components/PainSection";
 import { RevealSection } from "@/app/components/RevealSection";
 import { ProductSection } from "@/app/components/ProductSection";
@@ -15,11 +18,15 @@ import { Footer } from "@/app/components/Footer";
 export default function Home() {
   return (
     <>
+      <ViewContentPixel />
       <StickyNav />
 
       <main>
         {/* 1. HOOK */}
         <HeroSection />
+
+        {/* 1.5 BENEFICIOS RÁPIDOS */}
+        <QuickBenefits />
 
         {/* 2. DOLOR */}
         <PainSection />
@@ -53,6 +60,7 @@ export default function Home() {
       </main>
 
       <Footer />
+      <StickyBuyButton />
     </>
   );
 }
