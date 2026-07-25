@@ -1,6 +1,7 @@
 import { StickyNav } from "@/app/components/StickyNav";
 import { StickyBuyButton } from "@/app/components/StickyBuyButton";
 import { ViewContentPixel } from "@/app/components/ViewContentPixel";
+import { PaymentFailedBanner } from "@/app/components/PaymentFailedBanner";
 import { HeroSection } from "@/app/components/HeroSection";
 import { QuickBenefits } from "@/app/components/QuickBenefits";
 import { PainSection } from "@/app/components/PainSection";
@@ -19,6 +20,7 @@ export default function Home() {
   return (
     <>
       <ViewContentPixel />
+      <PaymentFailedBanner />
       <StickyNav />
 
       <main>

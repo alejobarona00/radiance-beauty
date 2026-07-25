@@ -8,7 +8,8 @@ import {
   COMPARE_AT_BY_UNIDADES,
   SHIPPING_BY_UNIDADES,
   PRODUCT_PRICE_BY_UNIDADES,
-  PAYMENT_URLS,
+  ANTICIPADO_PRICE_BY_UNIDADES,
+  ANTICIPADO_DISCOUNT,
   type OptionKey,
 } from "@/app/lib/pricing";
 
@@ -43,7 +44,7 @@ const PRICING = {
 
 const SHEETS_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbw8UurWxlDaKbow4QU-hqv5vE67tNLbqUMXqoCyTZi9p57Zgi5Bu-tVR5buBiweSWamWA/exec";
 
-const applyDiscount = (total: number) => Math.round((total * 0.95) / 100) * 100;
+const anticipadoDiscountPercent = ANTICIPADO_DISCOUNT * 100;
 
 interface FormData {
   nombre: string;
@@ -114,6 +115,7 @@ export const PricingSection = () => {
   const [showModal, setShowModal] = useState(false);
   const [orderConfirmed, setOrderConfirmed] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [form, setForm] = useState<FormData>({
     nombre: "",
     whatsapp: "",
@@ -125,11 +127,12 @@ export const PricingSection = () => {
   });
 
   const current = PRICING[selected];
-  const discountedTotal = applyDiscount(current.total);
+  const discountedTotal = ANTICIPADO_PRICE_BY_UNIDADES[selected];
 
   const closeModal = () => {
     setShowModal(false);
     setOrderConfirmed(false);
+    setCheckoutError(null);
   };
 
   // Bloquear scroll con modal abierto
@@ -154,6 +157,7 @@ export const PricingSection = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setCheckoutError(null);
 
     const totalFinal =
       form.paymentMethod === "anticipado" ? discountedTotal : current.total;
@@ -188,10 +192,29 @@ export const PricingSection = () => {
       } catch (err) {
         console.error("Error enviando a Google Sheets:", err);
       }
-      // Purchase se dispara en /gracias solo tras confirmar el regreso desde Mercado Pago
-      // (evita el doble conteo: éste abre el pago, no lo confirma).
-      setIsSubmitting(false);
-      window.open(PAYMENT_URLS[selected], "_blank", "noopener,noreferrer");
+
+      // No disparamos fbq("Purchase") aquí: Mercado Pago lo dispara del lado del
+      // servidor (vía "tracks") cuando el pago queda aprobado. Hacerlo también
+      // desde el front duplicaría el evento.
+      try {
+        const res = await fetch("/api/checkout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ unidades: Number(selected) }),
+        });
+        const data: { init_point?: string; error?: string } = await res.json();
+        if (!res.ok || !data.init_point) {
+          throw new Error(data.error || "No se pudo crear la preferencia de pago.");
+        }
+        // Dejamos isSubmitting en true: la página está por navegar a Mercado Pago.
+        window.location.assign(data.init_point);
+      } catch (err) {
+        console.error("Error creando la preferencia de Mercado Pago:", err);
+        setIsSubmitting(false);
+        setCheckoutError(
+          "No pudimos conectar con la pasarela de pago. Intenta de nuevo en unos segundos."
+        );
+      }
     } else {
       try {
         await fetch(SHEETS_WEBHOOK_URL, {
@@ -600,12 +623,22 @@ export const PricingSection = () => {
                             {
                               value: "contraentrega" as PaymentMethod,
                               title: "Pago Contraentrega",
-                              desc: "Pagas al recibir tu pedido en casa",
+                              desc: <>Pagas al recibir tu pedido en casa</>,
                             },
                             {
                               value: "anticipado" as PaymentMethod,
-                              title: "Pago Anticipado · 5% Descuento",
-                              desc: `Tarjeta / PSE · Pagarías solo ${fmt(discountedTotal)} COP`,
+                              title: "Pago Anticipado",
+                              desc: (
+                                <>
+                                  Tarjeta / PSE
+                                  <span className="block text-green-600 font-medium mt-1">
+                                    Ahorra {anticipadoDiscountPercent}% pagando ahora — {fmt(discountedTotal)}{" "}
+                                    <span className="line-through text-warm-gray/60 font-normal">
+                                      {fmt(current.total)}
+                                    </span>
+                                  </span>
+                                </>
+                              ),
                             },
                           ].map((opt) => {
                             const isActive = form.paymentMethod === opt.value;
@@ -637,6 +670,16 @@ export const PricingSection = () => {
                           })}
                         </div>
                       </div>
+
+                      {/* Error al crear la preferencia de pago */}
+                      {checkoutError && (
+                        <p
+                          role="alert"
+                          className="font-body text-xs text-center text-red-700 bg-red-50 border border-red-200 rounded-lg py-2.5 px-3"
+                        >
+                          {checkoutError}
+                        </p>
+                      )}
 
                       {/* Botón de submit */}
                       <button
