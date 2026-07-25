@@ -30,17 +30,6 @@ async function run() {
       out: pub("radiancelife-opt.jpg"),
       fn: (img) => img.jpeg({ quality: 82, mozjpeg: true }),
     },
-    // Antes/Después: fotos sin transparencia -> JPEG
-    {
-      in: pub("antes.png"),
-      out: pub("antes-opt.jpg"),
-      fn: (img) => img.jpeg({ quality: 84, mozjpeg: true }),
-    },
-    {
-      in: pub("despues.png"),
-      out: pub("despues-opt.jpg"),
-      fn: (img) => img.jpeg({ quality: 84, mozjpeg: true }),
-    },
   ];
 
   for (const job of jobs) {

@@ -1,39 +1,54 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { BuyButton } from "@/app/components/BuyButton";
 
+interface Step {
+  number: number;
+  label: string;
+  description: string;
+  image: string;
+  alt: string;
+  width: number;
+  height: number;
+}
+
+const steps: Step[] = [
+  {
+    number: 1,
+    label: "Antes",
+    description: "Residuos y grasa acumulados en el cuero cabelludo.",
+    image: "/01-antes.jpg",
+    alt: "Cuero cabelludo antes de usar la Mascarilla Exfoliante Capilar",
+    width: 900,
+    height: 1125,
+  },
+  {
+    number: 2,
+    label: "Aplicación",
+    description: "Masajea sobre el cuero cabelludo húmedo y deja actuar.",
+    image: "/02-aplicacion.jpg",
+    alt: "Aplicación de la Mascarilla Exfoliante Capilar sobre el cuero cabelludo",
+    width: 416,
+    height: 520,
+  },
+  {
+    number: 3,
+    label: "Después",
+    description: "Cuero cabelludo visiblemente más limpio.",
+    image: "/03-despues.jpg",
+    alt: "Cuero cabelludo después de usar la Mascarilla Exfoliante Capilar",
+    width: 900,
+    height: 1125,
+  },
+];
+
 export const BeforeAfterSection = () => {
-  const [sliderPos, setSliderPos] = useState(50);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  const updateSlider = useCallback((clientX: number) => {
-    if (!containerRef.current) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    const x = clientX - rect.left;
-    const pos = Math.max(0, Math.min(100, (x / rect.width) * 100));
-    setSliderPos(pos);
-  }, []);
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    updateSlider(e.clientX);
-  };
-
-  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    updateSlider(e.touches[0].clientX);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === "ArrowLeft") setSliderPos((p) => Math.max(0, p - 3));
-    if (e.key === "ArrowRight") setSliderPos((p) => Math.min(100, p + 3));
-  };
-
   return (
     <section
       className="bg-warm-stone py-16 px-5 sm:px-8 lg:px-16 lg:py-28"
-      aria-label="Comparativa antes y después del tratamiento"
+      aria-label="Resultado real en tres pasos"
     >
       <div className="max-w-4xl mx-auto">
 
@@ -43,7 +58,7 @@ export const BeforeAfterSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.65, ease: "easeOut" }}
-          className="text-center mb-8 lg:mb-12"
+          className="text-center mb-10 lg:mb-14"
         >
           <div className="flex items-center justify-center gap-4 mb-6">
             <div className="h-px w-10 bg-gold" />
@@ -52,112 +67,57 @@ export const BeforeAfterSection = () => {
             </span>
             <div className="h-px w-10 bg-gold" />
           </div>
-          <h2 className="font-display text-2xl sm:text-3xl lg:text-5xl text-charcoal leading-tight mb-4">
-            Transformación real:{" "}
-            <em className="not-italic text-gold block sm:inline">
-              Purificación y Salud Capilar
-            </em>
+          <h2 className="font-display text-2xl sm:text-3xl lg:text-5xl text-charcoal leading-tight">
+            Resultado real, <em className="not-italic text-gold">en 3 pasos</em>
           </h2>
-          <p className="font-body text-warm-gray text-sm tracking-[0.25em] uppercase">
-            Desliza para ver la diferencia
-          </p>
         </motion.div>
 
-        {/* Contenedor del slider */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.97 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.7, ease: "easeOut" }}
-        >
-          <div
-            ref={containerRef}
-            className="relative overflow-hidden rounded-2xl shadow-2xl aspect-[4/3] cursor-ew-resize select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-warm-stone"
-            onMouseMove={handleMouseMove}
-            onTouchMove={handleTouchMove}
-            onKeyDown={handleKeyDown}
-            tabIndex={0}
-            role="slider"
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-valuenow={Math.round(sliderPos)}
-            aria-label="Comparador antes y después — usa las flechas del teclado para mover"
-          >
-            {/* Imagen ANTES — fondo */}
-            <img
-              src="/antes-opt.jpg"
-              alt="Cuero cabelludo antes del tratamiento"
-              className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-              draggable={false}
-              loading="lazy"
-              decoding="async"
-            />
-
-            {/* Imagen DESPUÉS — encima, revelada por clip-path */}
-            <img
-              src="/despues-opt.jpg"
-              alt="Cuero cabelludo después del tratamiento"
-              className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-              style={{ clipPath: `inset(0 ${100 - sliderPos}% 0 0)` }}
-              draggable={false}
-              loading="lazy"
-              decoding="async"
-            />
-
-            {/* Línea divisora vertical */}
-            <div
-              className="absolute top-0 bottom-0 w-px bg-white/90"
-              style={{
-                left: `${sliderPos}%`,
-                transform: "translateX(-50%)",
-                boxShadow: "0 0 16px rgba(0,0,0,0.35)",
-              }}
-              aria-hidden="true"
+        {/* Grilla de pasos */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-6 lg:gap-8">
+          {steps.map((step, i) => (
+            <motion.div
+              key={step.number}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.55, delay: i * 0.12, ease: "easeOut" }}
+              className="max-w-[380px] mx-auto sm:max-w-none"
             >
-              {/* Handle circular */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white flex items-center justify-center gap-0.5"
-                style={{ boxShadow: "0 4px 20px rgba(0,0,0,0.25)" }}
-              >
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="#6B6359"
-                  strokeWidth={2.5}
-                  className="w-3 h-3"
+              <div className="relative aspect-[4/5] rounded-2xl overflow-hidden shadow-lg">
+                <Image
+                  src={step.image}
+                  alt={step.alt}
+                  width={step.width}
+                  height={step.height}
+                  sizes={
+                    step.number === 2
+                      ? "400px"
+                      : "(min-width: 640px) 33vw, 380px"
+                  }
+                  className="w-full h-full object-cover"
+                />
+                {/* Numeración del paso */}
+                <div
+                  className="absolute top-3 left-3 w-8 h-8 rounded-full bg-ivory border border-gold flex items-center justify-center"
                   aria-hidden="true"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                </svg>
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="#6B6359"
-                  strokeWidth={2.5}
-                  className="w-3 h-3"
-                  aria-hidden="true"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                </svg>
+                  <span className="font-display text-charcoal text-sm">{step.number}</span>
+                </div>
               </div>
-            </div>
+              <p className="font-body text-gold text-xs tracking-[0.35em] uppercase mt-4 mb-1.5">
+                {step.label}
+              </p>
+              <p className="font-body text-warm-gray text-sm leading-relaxed">
+                {step.description}
+              </p>
+            </motion.div>
+          ))}
+        </div>
 
-            {/* Etiqueta ANTES */}
-            <div className="absolute bottom-5 left-5 font-body text-white text-[10px] font-semibold tracking-[0.25em] uppercase px-3 py-1.5 rounded-full"
-              style={{ background: "rgba(0,0,0,0.45)" }}
-              aria-hidden="true"
-            >
-              Antes
-            </div>
-
-            {/* Etiqueta DESPUÉS */}
-            <div className="absolute bottom-5 right-5 font-body text-white text-[10px] font-semibold tracking-[0.25em] uppercase px-3 py-1.5 rounded-full"
-              style={{ background: "rgba(200,169,110,0.75)" }}
-              aria-hidden="true"
-            >
-              Después
-            </div>
-          </div>
-        </motion.div>
+        {/* Aviso legal */}
+        <p className="text-center font-body text-warm-gray/50 text-[11px] leading-relaxed mt-8 lg:mt-10">
+          Resultados reales. Pueden variar según el tipo de cabello y la frecuencia de uso.
+        </p>
 
         {/* CTA intermedio */}
         <motion.div
