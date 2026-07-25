@@ -1,13 +1,23 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { fbq } from "@/app/lib/fbq";
+import { PEDIDO_ANTICIPADO_STORAGE_KEY } from "@/app/lib/orderWebhook";
 
 const PaymentFailedBannerContent = () => {
   const searchParams = useSearchParams();
   const [dismissed, setDismissed] = useState(false);
   const failed = searchParams.get("pago") === "fallido";
+
+  // El pedido guardado para notificar solo con pago aprobado ya no aplica
+  // si Mercado Pago redirigió aquí por un pago fallido.
+  useEffect(() => {
+    if (!failed) return;
+    try {
+      sessionStorage.removeItem(PEDIDO_ANTICIPADO_STORAGE_KEY);
+    } catch {}
+  }, [failed]);
 
   if (!failed || dismissed) return null;
 

@@ -12,6 +12,7 @@ import {
   ANTICIPADO_DISCOUNT,
   type OptionKey,
 } from "@/app/lib/pricing";
+import { SHEETS_WEBHOOK_URL, PEDIDO_ANTICIPADO_STORAGE_KEY } from "@/app/lib/orderWebhook";
 
 type PaymentMethod = "contraentrega" | "anticipado";
 
@@ -41,8 +42,6 @@ const PRICING = {
     savingsNote: `Ahorras ${fmt(bundleSavings)} vs comprar por separado`,
   },
 } as const;
-
-const SHEETS_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbw8UurWxlDaKbow4QU-hqv5vE67tNLbqUMXqoCyTZi9p57Zgi5Bu-tVR5buBiweSWamWA/exec";
 
 const anticipadoDiscountPercent = ANTICIPADO_DISCOUNT * 100;
 
@@ -182,15 +181,13 @@ export const PricingSection = () => {
     };
 
     if (form.paymentMethod === "anticipado") {
+      // No notificamos "Nuevo Pedido" todavía: si lo hiciéramos aquí, llegaría
+      // aunque el cliente abandone el pago o Mercado Pago lo rechace. Guardamos
+      // los datos y es /gracias quien notifica, solo si el pago queda aprobado.
       try {
-        await fetch(SHEETS_WEBHOOK_URL, {
-          method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(orderData),
-        });
+        sessionStorage.setItem(PEDIDO_ANTICIPADO_STORAGE_KEY, JSON.stringify(orderData));
       } catch (err) {
-        console.error("Error enviando a Google Sheets:", err);
+        console.error("No se pudo guardar el pedido en sessionStorage:", err);
       }
 
       // No disparamos fbq("Purchase") aquí: Mercado Pago lo dispara del lado del
@@ -210,6 +207,11 @@ export const PricingSection = () => {
         window.location.assign(data.init_point);
       } catch (err) {
         console.error("Error creando la preferencia de Mercado Pago:", err);
+        // No hay redirect a Mercado Pago, así que no dejamos un pedido "fantasma"
+        // guardado esperando una aprobación que nunca vendrá.
+        try {
+          sessionStorage.removeItem(PEDIDO_ANTICIPADO_STORAGE_KEY);
+        } catch {}
         setIsSubmitting(false);
         setCheckoutError(
           "No pudimos conectar con la pasarela de pago. Intenta de nuevo en unos segundos."
