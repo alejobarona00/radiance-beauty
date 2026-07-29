@@ -1,71 +1,87 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { BuyButton } from "@/app/components/BuyButton";
+import { AnimatePresence, motion } from "framer-motion";
+import { fmt, usePricing, fieldId } from "@/app/components/PricingProvider";
+import { scrollToNearestPricing, PRICING_SECTION_IDS } from "@/app/lib/scrollToPricing";
 
 export const StickyBuyButton = () => {
-  const [pastThreshold, setPastThreshold] = useState(false);
-  const [nearFooterOrPricing, setNearFooterOrPricing] = useState(false);
+  const { current } = usePricing();
+  const [pastHero, setPastHero] = useState(false);
+  const [pricingVisible, setPricingVisible] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => {
-      const scrollable = document.documentElement.scrollHeight - window.innerHeight;
-      const progress = scrollable > 0 ? window.scrollY / scrollable : 0;
-      setPastThreshold(progress > 0.15);
-    };
-    handleScroll();
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  // Se oculta cerca del footer y también dentro de la sección de precio: ahí ya está
-  // visible el botón real "¡Comprar Ahora!" y el flotante sería un duplicado redundante.
-  useEffect(() => {
-    const targets = [document.getElementById("site-footer"), document.getElementById("precio")].filter(
-      (el): el is HTMLElement => el !== null
-    );
-    if (targets.length === 0) return;
-
-    const visible = new Set<Element>();
+    const hero = document.getElementById("hero");
+    if (!hero) return;
     const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) visible.add(entry.target);
-          else visible.delete(entry.target);
-        }
-        setNearFooterOrPricing(visible.size > 0);
-      },
+      ([entry]) => setPastHero(!entry.isIntersecting),
       { rootMargin: "0px" }
     );
-    targets.forEach((el) => observer.observe(el));
+    observer.observe(hero);
     return () => observer.disconnect();
   }, []);
 
-  const show = pastThreshold && !nearFooterOrPricing;
+  // Se oculta mientras cualquiera de los dos bloques de precio (arriba o abajo)
+  // esté visible: ahí ya está el botón real "¡Comprar Ahora!" y el flotante sería redundante.
+  useEffect(() => {
+    const sections = PRICING_SECTION_IDS
+      .map((id) => document.getElementById(id))
+      .filter((el): el is HTMLElement => el !== null);
+    if (sections.length === 0) return;
+
+    const visibility = new Map<Element, boolean>();
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => visibility.set(entry.target, entry.isIntersecting));
+        setPricingVisible(Array.from(visibility.values()).some(Boolean));
+      },
+      { threshold: 0.15 }
+    );
+    sections.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+
+  const handleTap = () => {
+    const nearestId = scrollToNearestPricing();
+    if (!nearestId) return;
+    // Espera a que el scroll suave termine antes de robar el foco, para no
+    // pelear con la animación (si se enfoca de inmediato, el navegador puede
+    // saltar el scroll directo al input y cortar la animación a medias).
+    window.setTimeout(() => {
+      document.getElementById(fieldId("nombre", nearestId))?.focus();
+    }, 500);
+  };
+
+  const show = pastHero && !pricingVisible;
 
   return (
-    <div
-      className={`md:hidden fixed inset-x-0 bottom-0 z-40 flex justify-center transition-all duration-300 ease-out ${
-        show ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0 pointer-events-none"
-      }`}
-      style={{ paddingBottom: "calc(0.9rem + env(safe-area-inset-bottom))", paddingTop: "0.5rem" }}
-      aria-hidden={!show}
-      // Evita que el botón sea enfocable por teclado mientras está oculto visualmente
-      // (opacity/translate por sí solos no lo sacan del orden de tabulación).
-      inert={!show}
-    >
-      <div
-        className="w-[90%]"
-        style={{ filter: "drop-shadow(0 6px 20px rgba(28,28,30,0.18))" }}
-      >
-        <BuyButton
-          label="Comprar ahora"
-          size="default"
-          showNote={false}
-          fullWidth
-          trackingId="sticky_mobile"
-        />
-      </div>
-    </div>
+    <AnimatePresence>
+      {show && (
+        <motion.div
+          initial={{ y: 100, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: 100, opacity: 0 }}
+          transition={{ duration: 0.25, ease: "easeOut" }}
+          className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-ivory/95 backdrop-blur-sm border-t border-gold/20 px-4 pt-3 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]"
+          style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}
+        >
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="font-display text-lg text-charcoal leading-none">{fmt(current.total)}</p>
+              <p className="font-body text-[11px] text-warm-gray mt-1">
+                {current.shipping === 0 ? "Envío gratis" : "Envío incluido"}
+              </p>
+            </div>
+            <button
+              onClick={handleTap}
+              aria-label="Comprar ahora"
+              className="rounded-full bg-terracota hover:bg-terracota-dark text-ivory font-body font-bold text-sm tracking-[0.1em] uppercase px-8 py-3.5 transition-colors duration-200 focus-ring-terracota"
+            >
+              Comprar
+            </button>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 };

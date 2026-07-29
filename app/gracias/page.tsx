@@ -96,7 +96,7 @@ function GraciasContent() {
           </>
         )}
         {showPaymentLink && (
-          <Link href="/#precio" style={{ display: 'inline-block', padding: '1rem 2rem', background: '#00a8e8', color: 'white', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold' }}>
+          <Link href="/#precio-top" style={{ display: 'inline-block', padding: '1rem 2rem', background: '#00a8e8', color: 'white', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold' }}>
             ¿Necesitas pagar? Haz clic aquí
           </Link>
         )}

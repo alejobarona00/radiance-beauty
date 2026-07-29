@@ -1,5 +1,6 @@
 import { StickyNav } from "@/app/components/StickyNav";
 import { StickyBuyButton } from "@/app/components/StickyBuyButton";
+import { WhatsAppButton } from "@/app/components/WhatsAppButton";
 import { ViewContentPixel } from "@/app/components/ViewContentPixel";
 import { PaymentFailedBanner } from "@/app/components/PaymentFailedBanner";
 import { HeroSection } from "@/app/components/HeroSection";
@@ -14,11 +15,12 @@ import { BeforeAfterSection } from "@/app/components/BeforeAfterSection";
 import { FAQSection } from "@/app/components/FAQSection";
 import { CtaSection } from "@/app/components/CtaSection";
 import { PricingSection } from "@/app/components/PricingSection";
+import { PricingProvider } from "@/app/components/PricingProvider";
 import { Footer } from "@/app/components/Footer";
 
 export default function Home() {
   return (
-    <>
+    <PricingProvider>
       <ViewContentPixel />
       <PaymentFailedBanner />
       <StickyNav />
@@ -27,42 +29,46 @@ export default function Home() {
         {/* 1. HOOK */}
         <HeroSection />
 
-        {/* 1.5 BENEFICIOS RÁPIDOS */}
+        {/* 1.5 COMPRA — arriba del todo: precio, paquete y CTA a un scroll del hero */}
+        <PricingSection sectionId="precio-top" showReviewsSummary />
+
+        {/* 2. BENEFICIOS RÁPIDOS */}
         <QuickBenefits />
 
-        {/* 2. DOLOR */}
+        {/* 3. DOLOR */}
         <PainSection />
 
-        {/* 3. REVELACIÓN */}
+        {/* 4. REVELACIÓN */}
         <RevealSection />
 
-        {/* 4. SOLUCIÓN */}
+        {/* 5. SOLUCIÓN */}
         <ProductSection />
 
-        {/* 5. PRUEBA */}
+        {/* 6. PRUEBA */}
         <IngredientsSection />
 
-        {/* 6. USO */}
+        {/* 7. USO */}
         <RitualSection />
 
-        {/* 7. CONFIANZA */}
+        {/* 8. CONFIANZA */}
         <TestimonialsSection />
 
-        {/* 8. EVIDENCIA VISUAL */}
+        {/* 9. EVIDENCIA VISUAL */}
         <BeforeAfterSection />
 
-        {/* 9. OBJECIONES */}
+        {/* 10. OBJECIONES */}
         <FAQSection />
 
-        {/* 10. CIERRE — texto + imagen del producto */}
+        {/* 11. CIERRE — texto + imagen del producto */}
         <CtaSection />
 
-        {/* 11. COMPRA — selector de unidades + modal (único punto de venta) */}
-        <PricingSection />
+        {/* 12. COMPRA — se repite al final para quien lee todo el contenido */}
+        <PricingSection sectionId="precio-bottom" />
       </main>
 
       <Footer />
       <StickyBuyButton />
-    </>
+      <WhatsAppButton />
+    </PricingProvider>
   );
 }

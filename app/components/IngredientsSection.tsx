@@ -11,7 +11,7 @@ const ingredients = [
       "Remueve células muertas y sebo acumulado.",
       "Actúa con precisión, sin inflamar el folículo.",
     ],
-    benefit: "Cuero cabelludo libre e impuro desde el primer uso.",
+    benefit: "Cuero cabelludo libre de impurezas desde el primer uso.",
   },
   {
     number: "02",
@@ -21,7 +21,7 @@ const ingredients = [
       "Repara la fibra dañada uniéndose a la queratina.",
       "Reduce la porosidad y fortalece desde la raíz.",
     ],
-    benefit: "Menos caída, más densidad y resistencia visible.",
+    benefit: "Cabello visiblemente más fuerte y con más cuerpo.",
   },
   {
     number: "03",
@@ -38,7 +38,7 @@ const ingredients = [
     name: "Aloe Vera",
     tag: "Calmante e hidratante",
     description: [
-      "Calma la inflamación y alivia la picazón al instante.",
+      "Sensación de alivio y frescura desde la aplicación.",
       "Repone hidratación en toda la fibra capilar.",
     ],
     benefit: "Cero picazón. Sensación de frescura que se mantiene.",

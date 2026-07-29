@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { fbq } from "@/app/lib/fbq";
+import { scrollToNearestPricing } from "@/app/lib/scrollToPricing";
 
 export const StickyNav = () => {
   const [visible, setVisible] = useState(false);
@@ -43,7 +44,7 @@ export const StickyNav = () => {
         <button
           onClick={() => {
             fbq("trackCustom", "CTAClick", { cta_location: "sticky_nav" });
-            document.getElementById("precio")?.scrollIntoView({ behavior: "smooth" });
+            scrollToNearestPricing();
           }}
           aria-label="Ver precios y comprar"
           className="flex-shrink-0 font-body text-xs font-semibold tracking-[0.12em] uppercase bg-terracota hover:bg-terracota-dark text-ivory px-5 py-2.5 rounded-full transition-all duration-200 hover:shadow-lg hover:shadow-terracota/25 hover:-translate-y-0.5 focus-ring-terracota"

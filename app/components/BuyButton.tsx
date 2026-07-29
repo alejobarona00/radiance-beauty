@@ -1,6 +1,7 @@
 "use client";
 
 import { fbq } from "@/app/lib/fbq";
+import { scrollToNearestPricing } from "@/app/lib/scrollToPricing";
 
 interface BuyButtonProps {
   label?: string;
@@ -65,7 +66,7 @@ export const BuyButton = ({
 
   const handleClick = () => {
     fbq("trackCustom", "CTAClick", { cta_location: trackingId });
-    document.getElementById("precio")?.scrollIntoView({ behavior: "smooth" });
+    scrollToNearestPricing();
   };
 
   return (

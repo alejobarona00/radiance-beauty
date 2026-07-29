@@ -90,6 +90,7 @@ const StarRating = () => (
 export const TestimonialsSection = () => {
   return (
     <section
+      id="testimonios"
       className="bg-charcoal py-28 px-8 lg:px-16"
       aria-label="Testimonios de clientas"
     >

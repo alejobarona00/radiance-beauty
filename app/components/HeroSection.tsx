@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { fbq } from "@/app/lib/fbq";
+import { scrollToNearestPricing } from "@/app/lib/scrollToPricing";
 
 export const HeroSection = () => {
   const handleScrollToNext = () => {
@@ -10,11 +11,12 @@ export const HeroSection = () => {
 
   const handleScrollToPricing = () => {
     fbq("trackCustom", "CTAClick", { cta_location: "hero" });
-    document.getElementById("precio")?.scrollIntoView({ behavior: "smooth" });
+    scrollToNearestPricing();
   };
 
   return (
     <section
+      id="hero"
       className="relative min-h-screen bg-[url('/radiancelife-opt.jpg')] bg-cover bg-center bg-no-repeat flex flex-col"
       aria-label="Sección principal de Radiance Beauty"
     >
