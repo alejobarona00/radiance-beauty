@@ -146,6 +146,7 @@ export const PricingProvider = ({ children }: { children: ReactNode }) => {
   const [touched, setTouched] = useState<Partial<Record<FieldName, boolean>>>({});
   const [errors, setErrors] = useState<Partial<Record<FieldName, string>>>({});
   const formStarted = useRef(false);
+  const initiateCheckoutFired = useRef(false);
 
   const current = PRICING[selected];
   const discountedTotal = ANTICIPADO_PRICE_BY_UNIDADES[selected];
@@ -160,21 +161,11 @@ export const PricingProvider = ({ children }: { children: ReactNode }) => {
     setCheckoutError(null);
   }, []);
 
-  // El formulario ahora está siempre visible dentro del bloque de precio (sin modal
-  // que abrir), así que "iniciar checkout" pasa a ser el primer foco real en el
-  // formulario — el equivalente inline al momento en que antes se abría el modal.
   const handleFocusField = useCallback(() => {
     if (formStarted.current) return;
     formStarted.current = true;
     fbq("trackCustom", "FormStarted", {});
-    fbq("track", "InitiateCheckout", {
-      value: current.total,
-      currency: "COP",
-      content_ids: [selected],
-      content_name: current.label,
-      num_items: Number(selected),
-    });
-  }, [current, selected]);
+  }, []);
 
   const handleChange = useCallback(
     (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -209,8 +200,19 @@ export const PricingProvider = ({ children }: { children: ReactNode }) => {
     });
     if (message) {
       fbq("trackCustom", "FormError", { field: fieldName });
+    } else if (!initiateCheckoutFired.current) {
+      // Señal de intención real: completó un campo con un valor válido,
+      // no solo lo tocó (eso ya lo cubre FormStarted). Dispara una sola vez.
+      initiateCheckoutFired.current = true;
+      fbq("track", "InitiateCheckout", {
+        value: current.total,
+        currency: "COP",
+        content_ids: [selected],
+        content_name: current.label,
+        num_items: Number(selected),
+      });
     }
-  }, []);
+  }, [current, selected]);
 
   const handlePaymentMethodChange = useCallback((method: PaymentMethod) => {
     setForm((prev) => ({ ...prev, paymentMethod: method }));
