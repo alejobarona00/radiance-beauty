@@ -147,6 +147,11 @@ export const PricingProvider = ({ children }: { children: ReactNode }) => {
   const [errors, setErrors] = useState<Partial<Record<FieldName, string>>>({});
   const formStarted = useRef(false);
   const initiateCheckoutFired = useRef(false);
+  // Último mensaje de error por campo que ya se reportó a Meta. Evita que el mismo
+  // error se cuente de nuevo en cada blur repetido o cada tap de "enviar" mientras
+  // el campo sigue sin corregirse — solo es una señal nueva si el mensaje cambia
+  // (o si el campo se corrigió y luego volvió a fallar).
+  const lastFiredError = useRef<Partial<Record<FieldName, string>>>({});
 
   const current = PRICING[selected];
   const discountedTotal = ANTICIPADO_PRICE_BY_UNIDADES[selected];
@@ -167,6 +172,19 @@ export const PricingProvider = ({ children }: { children: ReactNode }) => {
     fbq("trackCustom", "FormStarted", {});
   }, []);
 
+  // Dispara FormError solo si ESTE mensaje concreto para este campo no se había
+  // reportado todavía (nuevo error genuino), nunca por repetir blur/submit sobre
+  // el mismo error sin resolver.
+  const reportFieldError = useCallback((field: FieldName, message: string) => {
+    if (lastFiredError.current[field] === message) return;
+    lastFiredError.current[field] = message;
+    fbq("trackCustom", "FormError", { field });
+  }, []);
+
+  const clearFiredError = useCallback((field: FieldName) => {
+    delete lastFiredError.current[field];
+  }, []);
+
   const handleChange = useCallback(
     (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
       const { name, value } = e.target;
@@ -179,11 +197,14 @@ export const PricingProvider = ({ children }: { children: ReactNode }) => {
         const message = validateField(fieldName, value);
         const next = { ...prev };
         if (message) next[fieldName] = message;
-        else delete next[fieldName];
+        else {
+          delete next[fieldName];
+          clearFiredError(fieldName);
+        }
         return next;
       });
     },
-    []
+    [clearFiredError]
   );
 
   const handleBlur = useCallback((e: FocusEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -199,20 +220,23 @@ export const PricingProvider = ({ children }: { children: ReactNode }) => {
       return next;
     });
     if (message) {
-      fbq("trackCustom", "FormError", { field: fieldName });
-    } else if (!initiateCheckoutFired.current) {
-      // Señal de intención real: completó un campo con un valor válido,
-      // no solo lo tocó (eso ya lo cubre FormStarted). Dispara una sola vez.
-      initiateCheckoutFired.current = true;
-      fbq("track", "InitiateCheckout", {
-        value: current.total,
-        currency: "COP",
-        content_ids: [selected],
-        content_name: current.label,
-        num_items: Number(selected),
-      });
+      reportFieldError(fieldName, message);
+    } else {
+      clearFiredError(fieldName);
+      if (!initiateCheckoutFired.current) {
+        // Señal de intención real: completó un campo con un valor válido,
+        // no solo lo tocó (eso ya lo cubre FormStarted). Dispara una sola vez.
+        initiateCheckoutFired.current = true;
+        fbq("track", "InitiateCheckout", {
+          value: current.total,
+          currency: "COP",
+          content_ids: [selected],
+          content_name: current.label,
+          num_items: Number(selected),
+        });
+      }
     }
-  }, [current, selected]);
+  }, [current, selected, reportFieldError, clearFiredError]);
 
   const handlePaymentMethodChange = useCallback((method: PaymentMethod) => {
     setForm((prev) => ({ ...prev, paymentMethod: method }));
@@ -245,8 +269,8 @@ export const PricingProvider = ({ children }: { children: ReactNode }) => {
           return next;
         });
         setErrors(nextErrors);
-        Object.keys(nextErrors).forEach((f) => {
-          fbq("trackCustom", "FormError", { field: f });
+        (Object.keys(nextErrors) as FieldName[]).forEach((f) => {
+          reportFieldError(f, nextErrors[f]!);
         });
         // Lleva al usuario directo al primer campo que falta, en el bloque desde el que envió.
         const firstInvalid = fields.find((f) => nextErrors[f]);
@@ -325,7 +349,7 @@ export const PricingProvider = ({ children }: { children: ReactNode }) => {
         setOrderConfirmed(true);
       }
     },
-    [form, current, selected, discountedTotal]
+    [form, current, selected, discountedTotal, reportFieldError]
   );
 
   return (
