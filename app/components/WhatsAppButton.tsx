@@ -4,7 +4,7 @@ import { useRef } from "react";
 import { fbq } from "@/app/lib/fbq";
 
 const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER;
-const MESSAGE = "Hola, quiero información sobre la Mascarilla Exfoliante Capilar";
+const MESSAGE = "Hola, me interesa la mascarilla";
 // Absorbe un doble-tap/ghost-click del mismo toque sin suprimir un clic genuino
 // posterior (alguien que vuelve a tocar minutos después sí cuenta de nuevo).
 const CLICK_DEDUP_WINDOW_MS = 1500;
