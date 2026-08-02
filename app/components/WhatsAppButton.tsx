@@ -1,21 +1,34 @@
 "use client";
 
+import { useRef } from "react";
 import { fbq } from "@/app/lib/fbq";
 
 const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER;
 const MESSAGE = "Hola, quiero información sobre la Mascarilla Exfoliante Capilar";
+// Absorbe un doble-tap/ghost-click del mismo toque sin suprimir un clic genuino
+// posterior (alguien que vuelve a tocar minutos después sí cuenta de nuevo).
+const CLICK_DEDUP_WINDOW_MS = 1500;
 
 export const WhatsAppButton = () => {
+  const lastClickAt = useRef(0);
+
   if (!WHATSAPP_NUMBER) return null;
 
   const href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(MESSAGE)}`;
+
+  const handleClick = () => {
+    const now = Date.now();
+    if (now - lastClickAt.current < CLICK_DEDUP_WINDOW_MS) return;
+    lastClickAt.current = now;
+    fbq("trackCustom", "WhatsAppClick", {});
+  };
 
   return (
     <a
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      onClick={() => fbq("trackCustom", "WhatsAppClick", {})}
+      onClick={handleClick}
       aria-label="Escríbenos por WhatsApp"
       className="fixed right-4 sm:right-6 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] sm:bottom-6 z-30 flex items-center justify-center w-14 h-14 rounded-full bg-[#25D366] text-white shadow-lg shadow-black/20 transition-transform duration-200 hover:scale-105 focus-ring-gold"
     >

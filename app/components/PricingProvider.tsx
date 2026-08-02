@@ -156,10 +156,16 @@ export const PricingProvider = ({ children }: { children: ReactNode }) => {
   const current = PRICING[selected];
   const discountedTotal = ANTICIPADO_PRICE_BY_UNIDADES[selected];
 
-  const selectPackage = useCallback((key: OptionKey) => {
-    setSelected(key);
-    fbq("trackCustom", "PackageSelected", { package: key === "1" ? "1_unidad" : "2_unidades" });
-  }, []);
+  const selectPackage = useCallback(
+    (key: OptionKey) => {
+      // Reelegir el paquete que ya estaba activo (incluida la preselección por
+      // defecto) no es una selección nueva del usuario — no debe recontar.
+      if (key === selected) return;
+      setSelected(key);
+      fbq("trackCustom", "PackageSelected", { package: key === "1" ? "1_unidad" : "2_unidades" });
+    },
+    [selected]
+  );
 
   const dismissConfirmation = useCallback(() => {
     setOrderConfirmed(false);
@@ -238,10 +244,16 @@ export const PricingProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [current, selected, reportFieldError, clearFiredError]);
 
-  const handlePaymentMethodChange = useCallback((method: PaymentMethod) => {
-    setForm((prev) => ({ ...prev, paymentMethod: method }));
-    fbq("trackCustom", "PaymentMethodSelected", { method });
-  }, []);
+  const handlePaymentMethodChange = useCallback(
+    (method: PaymentMethod) => {
+      // Igual que con el paquete: reelegir el método ya activo (incluido el
+      // default "contraentrega") no es una selección nueva, no debe recontar.
+      if (method === form.paymentMethod) return;
+      setForm((prev) => ({ ...prev, paymentMethod: method }));
+      fbq("trackCustom", "PaymentMethodSelected", { method });
+    },
+    [form.paymentMethod]
+  );
 
   const isFormValid =
     (["nombre", "whatsapp", "departamento", "ciudad", "direccion"] as FieldName[]).every(
